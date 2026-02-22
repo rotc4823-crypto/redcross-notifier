@@ -71,6 +71,9 @@ def send_telegram_message(message):
         print("경고: 텔레그램 토큰 또는 챗 아이디가 설정되지 않았습니다.")
         return False
         
+        print(f"DEBUG: 현재 사용중인 토큰 시작부분 -> {TELEGRAM_BOT_TOKEN[:5]}")
+        print(f"DEBUG: 현재 사용중인 챗아이디 -> {TELEGRAM_CHAT_ID}")
+
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
@@ -147,3 +150,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
