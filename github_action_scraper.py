@@ -118,6 +118,13 @@ def save_history(history):
         json.dump(history, f, ensure_ascii=False, indent=4)
 
 def run():
+    if os.environ.get("SEND_TEST_NOTIFICATION", "false").lower() == "true":
+        test_message = "✅ RedCross Edu Notifier 점검 완료\nTelegram 알림 발송이 정상 동작합니다."
+        if not send_telegram_message(test_message):
+            raise RuntimeError("텔레그램 테스트 알림 발송에 실패했습니다.")
+        print("[발송 성공] 텔레그램 테스트 알림")
+        return
+
     print("GitHub Actions: 대한적십자사 교육 공고 스크래핑 시작...")
     
     url_08 = "https://www.redcross.or.kr/learn/edu/edu_card.do?educode1=01&educode2=08"
