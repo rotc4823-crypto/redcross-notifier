@@ -3,6 +3,7 @@ import urllib.parse
 import json
 import os
 import re
+import html
 
 # GitHub Secrets에서 가져올 환경 변수
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
@@ -86,7 +87,19 @@ def send_telegram_message(message):
     
     try:
         with urllib.request.urlopen(req) as response:
-            return True
+            result = json.loads(response.read().decode("utf-8"))
+            if result.get("ok") is True:
+                return True
+            print(f"텔레그램 API 오류: {result.get('description', '알 수 없는 오류')}")
+            return False
+    except urllib.error.HTTPError as e:
+        try:
+            error_body = json.loads(e.read().decode("utf-8"))
+            description = error_body.get("description", str(e))
+        except Exception:
+            description = str(e)
+        print(f"텔레그램 발송 오류: {description}")
+        return False
     except Exception as e:
         print(f"텔레그램 발송 오류: {e}")
         return False
@@ -119,6 +132,7 @@ def run():
     all_edus = list_08 + list_23
     history = load_history()
     new_found = False
+    send_failed = False
     
     for edu in all_edus:
         if edu["eduno"] in history:
@@ -130,9 +144,9 @@ def run():
              
         msg = (
             f"🚨 <b>대한적십자사 교육 신규 공고</b>\n\n"
-            f"📍 <b>지부</b>: {edu['branch']}\n"
-            f"📝 <b>과정명</b>: {edu['title']}\n"
-            f"📅 <b>교육기간</b>: {edu['date']}\n\n"
+            f"📍 <b>지부</b>: {html.escape(edu['branch'])}\n"
+            f"📝 <b>과정명</b>: {html.escape(edu['title'])}\n"
+            f"📅 <b>교육기간</b>: {html.escape(edu['date'])}\n\n"
             f"🔗 <a href='https://www.redcross.or.kr/learn/edu/edu_view.do?eduno={edu['eduno']}'>상세보기 및 신청 (클릭)</a>"
         )
         
@@ -141,13 +155,17 @@ def run():
             print(f"[발송 성공] {edu['branch']} - {edu['title']}")
             history.append(edu["eduno"])
             new_found = True
+        else:
+            send_failed = True
             
     if new_found:
         save_history(history)
         print("히스토리 업데이트 완료.")
-    else:
+    elif not send_failed:
         print("새로 업데이트된 공고가 없습니다.")
+
+    if send_failed:
+        raise RuntimeError("하나 이상의 텔레그램 알림 발송에 실패했습니다.")
 
 if __name__ == "__main__":
     run()
-
