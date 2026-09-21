@@ -119,7 +119,7 @@ def save_history(history):
 
 def run():
     if os.environ.get("SEND_TEST_NOTIFICATION", "false").lower() == "true":
-        test_message = "✅ RedCross Edu Notifier 점검 완료\nTelegram 알림 발송이 정상 동작합니다."
+        test_message = "✅ [응급처치 공고] RedCross Edu Notifier 점검 완료\nTelegram 알림 발송이 정상 동작합니다."
         if not send_telegram_message(test_message):
             raise RuntimeError("텔레그램 테스트 알림 발송에 실패했습니다.")
         print("[발송 성공] 텔레그램 테스트 알림")
@@ -150,7 +150,7 @@ def run():
              continue
              
         msg = (
-            f"🚨 <b>대한적십자사 교육 신규 공고</b>\n\n"
+            f"🚨 <b>[응급처치 공고] 대한적십자사 교육 신규 공고</b>\n\n"
             f"📍 <b>지부</b>: {html.escape(edu['branch'])}\n"
             f"📝 <b>과정명</b>: {html.escape(edu['title'])}\n"
             f"📅 <b>교육기간</b>: {html.escape(edu['date'])}\n\n"
